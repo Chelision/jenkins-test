@@ -10,6 +10,7 @@ pipeline {
         APP_HOST = '0.0.0.0'
         APP_PORT = '5173'
         JENKINS_NODE_COOKIE = 'dontKillMe'
+        EXTRA_NODE_PATH = '/opt/homebrew/bin:/usr/local/bin'
     }
 
     stages {
@@ -22,6 +23,21 @@ pipeline {
         stage('Install') {
             steps {
                 sh '''
+                    set -e
+                    export PATH="${EXTRA_NODE_PATH}:$PATH"
+
+                    if ! command -v node >/dev/null 2>&1; then
+                        echo "ERROR: node command not found. Install Node.js on this Jenkins agent or configure the Jenkins NodeJS tool."
+                        echo "Current PATH: $PATH"
+                        exit 127
+                    fi
+
+                    if ! command -v npm >/dev/null 2>&1; then
+                        echo "ERROR: npm command not found. Install npm on this Jenkins agent or configure the Jenkins NodeJS tool."
+                        echo "Current PATH: $PATH"
+                        exit 127
+                    fi
+
                     node -v
                     npm -v
                     npm ci
@@ -31,13 +47,20 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'npm run build'
+                sh '''
+                    set -e
+                    export PATH="${EXTRA_NODE_PATH}:$PATH"
+                    npm run build
+                '''
             }
         }
 
         stage('Start Frontend') {
             steps {
                 sh '''
+                    set -e
+                    export PATH="${EXTRA_NODE_PATH}:$PATH"
+
                     if command -v lsof >/dev/null 2>&1; then
                         OLD_PID=$(lsof -ti tcp:${APP_PORT} || true)
                         if [ -n "$OLD_PID" ]; then
