@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs 'node18'
+    }
+
     options {
         timestamps()
         disableConcurrentBuilds()
@@ -10,7 +14,6 @@ pipeline {
         APP_HOST = '0.0.0.0'
         APP_PORT = '5173'
         JENKINS_NODE_COOKIE = 'dontKillMe'
-        EXTRA_NODE_PATH = '/opt/homebrew/bin:/usr/local/bin'
     }
 
     stages {
@@ -24,16 +27,15 @@ pipeline {
             steps {
                 sh '''
                     set -e
-                    export PATH="${EXTRA_NODE_PATH}:$PATH"
 
                     if ! command -v node >/dev/null 2>&1; then
-                        echo "ERROR: node command not found. Install Node.js on this Jenkins agent or configure the Jenkins NodeJS tool."
+                        echo "ERROR: node command not found. Configure Jenkins NodeJS tool named node18."
                         echo "Current PATH: $PATH"
                         exit 127
                     fi
 
                     if ! command -v npm >/dev/null 2>&1; then
-                        echo "ERROR: npm command not found. Install npm on this Jenkins agent or configure the Jenkins NodeJS tool."
+                        echo "ERROR: npm command not found. Configure Jenkins NodeJS tool named node18."
                         echo "Current PATH: $PATH"
                         exit 127
                     fi
@@ -49,7 +51,6 @@ pipeline {
             steps {
                 sh '''
                     set -e
-                    export PATH="${EXTRA_NODE_PATH}:$PATH"
                     npm run build
                 '''
             }
@@ -59,7 +60,6 @@ pipeline {
             steps {
                 sh '''
                     set -e
-                    export PATH="${EXTRA_NODE_PATH}:$PATH"
 
                     if command -v lsof >/dev/null 2>&1; then
                         OLD_PID=$(lsof -ti tcp:${APP_PORT} || true)
