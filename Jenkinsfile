@@ -64,22 +64,22 @@ pipeline {
             }
         }
 
-        stage('Upload Assets to COS') {
-            steps {
-                // COS 密钥从 Jenkins 凭据读取，避免提交到 GitHub 仓库。
-                withCredentials([
-                    string(credentialsId: 'cos-secret-id', variable: 'COS_SECRET_ID'),
-                    string(credentialsId: 'cos-secret-key', variable: 'COS_SECRET_KEY')
-                ]) {
-                    sh '''
-                        set -e
-
-                        # 上传 dist/assets 到腾讯云 COS。
-                        npm run upload:cos
-                    '''
-                }
-            }
-        }
+        // stage('Upload Assets to COS') {
+        //     steps {
+        //         // COS 密钥从 Jenkins 凭据读取，避免提交到 GitHub 仓库。
+        //         withCredentials([
+        //             string(credentialsId: 'cos-secret-id', variable: 'COS_SECRET_ID'),
+        //             string(credentialsId: 'cos-secret-key', variable: 'COS_SECRET_KEY')
+        //         ]) {
+        //             sh '''
+        //                 set -e
+        //
+        //                 # 上传 dist/assets 到腾讯云 COS。
+        //                 npm run upload:cos
+        //             '''
+        //         }
+        //     }
+        // }
 
         stage('Start Frontend Preview') {
             steps {
