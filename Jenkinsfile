@@ -12,7 +12,7 @@ pipeline {
 
     tools {
         // 这里的名字必须和 Jenkins -> Manage Jenkins -> Tools 里配置的 NodeJS 名称一致。
-        nodejs 'node22'
+        nodejs 'Node22'
     }
 
     environment {
