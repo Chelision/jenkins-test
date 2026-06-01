@@ -6,6 +6,10 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
+    "build:local": "set -a; . ./.env.development; set +a; vite build",
+    "build:cos": "set -a; . ./.env.cos; set +a; vite build",
+    "upload:cos": "sh scripts/upload-to-cos.sh",
+    "deploy:cos": "npm run build:cos && npm run upload:cos",
     "preview": "vite preview --host 0.0.0.0"
   },
   "dependencies": {
@@ -14,5 +18,13 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^2.3.4",
     "vite": "^2.9.16"
+  },
+  "cos": {
+    "Mode": "SecretKey",
+    "BucketName": "ap-ives-1304933815",
+    "BucketEndpoint": "cos.ap-guangzhou.myqcloud.com",
+    "BucketAlias": "ap-ives-1304933815",
+    "AssetPrefix": "assets",
+    "SourceDir": "dist/assets"
   }
 }
