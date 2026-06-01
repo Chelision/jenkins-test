@@ -11,9 +11,18 @@ pipeline {
     }
 
     parameters {
-        // 构建时选择要部署的 Git 分支。
+        // 构建时通过下拉框选择要部署的 Git 分支。
+        // 需要 Jenkins 安装 Git Parameter 插件，否则 gitParameter 参数无法识别。
         // Jenkins 任务配置里的 Pipeline -> SCM -> Branch Specifier 需要写成 */${BRANCH_NAME}。
-        string(name: 'BRANCH_NAME', defaultValue: 'main', description: '要部署的 Git 分支，例如 main、dev、test')
+        gitParameter(
+            name: 'BRANCH_NAME',
+            type: 'PT_BRANCH',
+            branchFilter: 'origin/(.*)',
+            defaultValue: 'main',
+            selectedValue: 'DEFAULT',
+            sortMode: 'ASCENDING_SMART',
+            description: '请选择要部署的 Git 分支'
+        )
     }
 
     tools {
