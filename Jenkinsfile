@@ -23,6 +23,19 @@ pipeline {
             sortMode: 'ASCENDING_SMART',
             description: '请选择要部署的 Git 分支'
         )
+        // 构建时通过下拉框选择要部署的 Git Tag。
+        // jenkins中也需要改为对应的tag部署而不是branch
+        // 需要 Jenkins 安装 Git Parameter 插件。
+        // Jenkins 任务配置里的 Pipeline -> SCM -> Branch Specifier 建议写成 refs/tags/${TAG_NAME}。
+        // gitParameter(
+        //     name: 'TAG_NAME',
+        //     type: 'PT_TAG',
+        //     tagFilter: '*',
+        //     defaultValue: '',
+        //     selectedValue: 'TOP',
+        //     sortMode: 'DESCENDING_SMART',
+        //     description: '请选择要部署的 Git Tag'
+        // )
     }
 
     tools {
@@ -46,6 +59,8 @@ pipeline {
             steps {
                 // 打印本次构建选择的分支，方便在 Jenkins 控制台日志里确认部署来源。
                 echo "Deploy branch: ${params.BRANCH_NAME}"
+                // 输出tagname
+                // echo "Deploy tag: ${params.TAG_NAME}"
 
                 // 从 Jenkins 任务配置的 GitHub 仓库拉取代码。
                 checkout scm
