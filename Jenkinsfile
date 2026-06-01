@@ -58,8 +58,8 @@ pipeline {
                 sh '''
                     set -e
 
-                    # 使用 .env.cos 里的 VITE_PUBLIC_PATH 构建 COS 访问路径。
-                    npm run build:cos
+                    # 当前仅在 Jenkins 机器上预览，使用本地资源路径构建。
+                    npm run build
                 '''
             }
         }
