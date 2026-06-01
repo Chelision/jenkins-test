@@ -10,6 +10,12 @@ pipeline {
         disableConcurrentBuilds()
     }
 
+    parameters {
+        // 构建时选择要部署的 Git 分支。
+        // Jenkins 任务配置里的 Pipeline -> SCM -> Branch Specifier 需要写成 */${BRANCH_NAME}。
+        string(name: 'BRANCH_NAME', defaultValue: 'main', description: '要部署的 Git 分支，例如 main、dev、test')
+    }
+
     tools {
         // 这里的名字必须和 Jenkins -> Manage Jenkins -> Tools 里配置的 NodeJS 名称一致。
         nodejs 'Node22'
@@ -29,6 +35,9 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
+                // 打印本次构建选择的分支，方便在 Jenkins 控制台日志里确认部署来源。
+                echo "Deploy branch: ${params.BRANCH_NAME}"
+
                 // 从 Jenkins 任务配置的 GitHub 仓库拉取代码。
                 checkout scm
             }
