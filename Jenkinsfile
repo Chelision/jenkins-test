@@ -33,9 +33,14 @@ pipeline {
         )
 
         // 当前项目要绑定的域名，同时对应 nginx/vhost/<SITE_NAME>.conf。
-        string(
+        // 新增可选项时，需要同步新增 nginx/vhost/<域名>.conf。
+        choice(
             name: 'SITE_NAME',
-            defaultValue: 'www.mumup.asia',
+            choices: [
+                'www.mumup.asia',
+                'demo.mumup.asia',
+                'admin.mumup.asia'
+            ],
             description: '要发布的域名，例如 www.mumup.asia、admin.mumup.asia'
         )
 
@@ -68,6 +73,9 @@ pipeline {
 
         // 让 Jenkins 不要在构建结束时杀掉后台启动的 preview 进程。
         JENKINS_NODE_COOKIE = 'dontKillMe'
+
+        // 当前仓库对应的项目标识，用于生成可追踪的发布版本目录。
+        PROJECT_KEY = 'jenkins-test-pro'
     }
 
     stages {
@@ -121,8 +129,8 @@ pipeline {
                 sh '''
                     set -e
 
-                    # 发布 dist 到 /var/www/<SITE_NAME>/dist，并同步 nginx/vhost/<SITE_NAME>.conf。
-                    sudo SITE_NAME="${SITE_NAME}" ./scripts/deploy-nginx-static.sh
+                    # 发布 dist 到 /var/www/<SITE_NAME>/releases/<BUILD_NUMBER>，并切换 current。
+                    sudo SITE_NAME="${SITE_NAME}" PROJECT_KEY="${PROJECT_KEY}" RELEASE_ID="${PROJECT_KEY}-${BUILD_NUMBER}" ./scripts/deploy-nginx-static.sh
                 '''
             }
         }
