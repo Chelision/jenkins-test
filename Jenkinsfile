@@ -23,6 +23,22 @@ pipeline {
             sortMode: 'ASCENDING_SMART',
             description: '请选择要部署的 Git 分支'
         )
+
+        // 是否发布到服务器 Nginx 静态目录。
+        // 默认关闭，先保留当前 vite preview 的访问方式；服务器 Nginx 和 sudo 权限配置好后再勾选。
+        booleanParam(
+            name: 'ENABLE_NGINX_DEPLOY',
+            defaultValue: false,
+            description: '是否把 dist 和 nginx/vhost/<域名>.conf 发布到服务器 Nginx'
+        )
+
+        // 当前项目要绑定的域名，同时对应 nginx/vhost/<SITE_NAME>.conf。
+        string(
+            name: 'SITE_NAME',
+            defaultValue: 'www.mumup.asia',
+            description: '要发布的域名，例如 www.mumup.asia、admin.mumup.asia'
+        )
+
         // 构建时通过下拉框选择要部署的 Git Tag。
         // jenkins中也需要改为对应的tag部署而不是branch
         // 需要 Jenkins 安装 Git Parameter 插件。
@@ -97,6 +113,20 @@ pipeline {
             }
         }
 
+        stage('Deploy Static Files to Nginx') {
+            when {
+                expression { return params.ENABLE_NGINX_DEPLOY }
+            }
+            steps {
+                sh '''
+                    set -e
+
+                    # 发布 dist 到 /var/www/<SITE_NAME>/dist，并同步 nginx/vhost/<SITE_NAME>.conf。
+                    sudo SITE_NAME="${SITE_NAME}" ./scripts/deploy-nginx-static.sh
+                '''
+            }
+        }
+
         // stage('Upload Assets to COS') {
         //     steps {
         //         // COS 密钥从 Jenkins 凭据读取，避免提交到 GitHub 仓库。
@@ -115,6 +145,9 @@ pipeline {
         // }
 
         stage('Start Frontend Preview') {
+            when {
+                expression { return !params.ENABLE_NGINX_DEPLOY }
+            }
             steps {
                 sh '''
                     set -e

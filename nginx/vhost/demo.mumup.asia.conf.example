@@ -1,0 +1,20 @@
+server {
+    listen 80;
+    server_name demo.mumup.asia;
+
+    root /var/www/demo.mumup.asia/dist;
+    index index.html;
+
+    access_log /var/log/nginx/demo.mumup.asia.access.log;
+    error_log /var/log/nginx/demo.mumup.asia.error.log;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location ~* \.(js|css|png|jpg|jpeg|gif|svg|ico|webp|woff|woff2)$ {
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+        try_files $uri =404;
+    }
+}
